@@ -1,10 +1,9 @@
 #include"arbitre.h"
 void create_map(struct map *self){
 	//création d'un plateau
-	self->all=calloc(100,sizeof(struct *square));
 	for(int i=0;i<10;i++){
 		for(int j=0;j<10;j++){
-			create_square(self->all[i][j],i,j);
+			create_square(self->all[i][j],i,j); //all => bug
 		}	
 	}
 }
@@ -29,6 +28,10 @@ void create_piece(struct piece *self, int x, int y){
 	self->pos=NULL;
 	self->player=NULL;
 }
+void update_piece(struct piece *self, int value, char *pos){
+    self->value=value;
+    self->pos=*pos;
+}
 void delete_piece(struct piece *self){
 	//supression d'une piece
 	free(self);
@@ -47,11 +50,19 @@ void delete_map(struct map *self){
 	}
 	free(self);
 }
-void make_game(){
-	//création du jeux complet
-	struct map *self = calloc(1,sizeof(struct map));
-	create_map(self);
-}
 int main(int argc, char *argv[]){
-	return 0;
+    struct map *self = calloc(1,sizeof(struct map));
+    create_map(self);
+    if(fork()==0){
+        execvp("./joueur",0);
+    }
+    wait(0);
+    if(fork()==0){
+        execvp("./joueur",1);
+    }
+    wait(0);
+    for(;;){
+        //TODO pipe
+    }
+    return 0;
 }
